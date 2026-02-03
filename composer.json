@@ -1,0 +1,36 @@
+{
+    "name": "schachbulle/contao-artikeldatum-bundle",
+    "type": "contao-bundle",
+    "description": "Inserttag für Contao um das aktuelle Artikeldatum anzuzeigen",
+    "license": "LGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Frank Binding",
+            "homepage": "https://www.schachbulle.de/"
+        }
+    ],
+    "require": {
+        "php": "^8",
+        "contao/core-bundle": "^5"
+    },
+    "conflict": {
+        "contao/core": "*",
+        "contao/manager-plugin": "<2.0 || >=3.0"
+    },
+    "require-dev": {
+        "contao/manager-plugin": "^2.0",
+        "doctrine/doctrine-cache-bundle": "^1.3"
+    },
+    "extra": {
+        "contao-manager-plugin": "Schachbulle\\ContaoArtikeldatumBundle\\ContaoManager\\Plugin"
+    },
+    "autoload": {
+        "psr-4": {
+            "Schachbulle\\ContaoArtikeldatumBundle\\": "src/"
+        }
+    },
+    "support": {
+        "issues": "https://github.com/Samson1964/contao-artikeldatum-bundle/issues",
+        "source": "https://github.com/Samson1964/contao-artikeldatum-bundle"
+    }
+}

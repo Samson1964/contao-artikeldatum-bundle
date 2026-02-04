@@ -5,103 +5,77 @@
  *
  * Copyright (c) 2005-2014 Leo Feyer
  *
- * @package   fh-counter
- * @author    Frank Hoppe
+ * @package   ContaoArtikeldatumBundle
+ * @author    Frank Binding
  * @license   GNU/LGPL
  * @copyright Frank Hoppe 2014
  */
 
 namespace Schachbulle\ContaoArtikeldatumBundle\Classes;
 
-class Artikeldatum extends \Frontend
+class Artikeldatum
 {
 
-	public function Tag($strTag)
+	public function doReplace($tag, $blnCache, $strTag, $flags, $tags, $arrCache, $_rit, $_cnt)
 	{
-		$arrSplit = explode('::', $strTag);
+		$arrSplit = explode('::', $tag);
 
-		// Inserttag {{fide::ID::Name}}
-		// Liefert zu einer FIDE-ID den Link
-		// Parameter 1 (ID) = FIDE-ID
-		// Parameter 2 (Elo) = Name des Links, Standard ist "FIDE-Karteikarte"
-		if($arrSplit[0] == 'fide' || $arrSplit[0] == 'cache_fide')
+		// Inserttag {{article_update::d.m.Y}}
+		if($arrSplit[0] == 'article_update')
 		{
-			// Parameter 1 angegeben?
+			$datum = self::ladeDatum();
+			// Parameter 2 angegeben?
 			if(isset($arrSplit[1]))
 			{
-				if(isset($arrSplit[2]))
-				{
-					// Parameter 2 angegeben?
-					return '<a href="https://ratings.fide.com/profile/'.$arrSplit[1].'" target="_blank">'.$arrSplit[2].'</a>';
-				}
-				else
-				{
-					return '<a href="https://ratings.fide.com/profile/'.$arrSplit[1].'" target="_blank">FIDE-Karteikarte</a>';
-				}
+				// Parameter 2 angegeben?
+				return date($arrSplit[1], $datum);
 			}
-		}
-		
-		// Inserttag {{wp-de::Name}}
-		// Liefert zu den Link zu einem deutschen Wikipediaartikel. Es wird eine Grafik von schachbund.de angezeigt.
-		// Parameter 1 (Name) = Artikelname
-		if($arrSplit[0] == 'wp-de' || $arrSplit[0] == 'cache_wp-de')
-		{
-			// Parameter 1 angegeben?
-			if(isset($arrSplit[1]))
+			else
 			{
-				return '<a href="https://de.wikipedia.org/wiki/'.$arrSplit[1].'" target="_blank" title="Wikipedia"><img src="files/dsb/icons/wikipedia_32.png"></a>';
-			}
-		}
-		
-		// Inserttag {{wp-en::Name}}
-		// Liefert zu den Link zu einem englischen Wikipediaartikel. Es wird eine Grafik von schachbund.de angezeigt.
-		// Parameter 1 (Name) = Artikelname
-		if($arrSplit[0] == 'wp-en' || $arrSplit[0] == 'cache_wp-en')
-		{
-			// Parameter 1 angegeben?
-			if(isset($arrSplit[1]))
-			{
-				return '<a href="https://en.wikipedia.org/wiki/'.$arrSplit[1].'" target="_blank" title="Wikipedia"><img src="files/dsb/icons/wikipedia_32.png"></a>';
-			}
-		}
-		
-		// Inserttag {{homepage::URL}}
-		// Liefert zu den Link zu einer Homepage. Es wird eine Grafik von schachbund.de angezeigt.
-		// Parameter 1 (URL) = URL der Homepage
-		if($arrSplit[0] == 'homepage' || $arrSplit[0] == 'cache_homepage')
-		{
-			// Parameter 1 angegeben?
-			if(isset($arrSplit[1]))
-			{
-				return '<a href="'.$arrSplit[1].'" target="_blank" title="Homepage"><img src="files/dsb/theme/icons/homepage_32.png"></a>';
-			}
-		}
-
-		// Inserttag {{twitch::Name}}
-		// Liefert zu den Link zu Twitch. Es wird eine Grafik von schachbund.de angezeigt.
-		// Parameter 1 (Name) = Benutzername bei Twitch
-		if($arrSplit[0] == 'twitch' || $arrSplit[0] == 'cache_twitch')
-		{
-			// Parameter 1 angegeben?
-			if(isset($arrSplit[1]))
-			{
-				return '<a href="https://www.twitch.tv/'.$arrSplit[1].'" target="_blank" title="Twitch"><img src="files/dsb/theme/icons/twitch_32.png"></a>';
-			}
-		}
-
-		// Inserttag {{youtube::Name}}
-		// Liefert zu den Link zu Youtube. Es wird eine Grafik von schachbund.de angezeigt.
-		// Parameter 1 (Name) = Benutzername bei Youtube ggfs. mit channel/ID davor
-		if($arrSplit[0] == 'youtube' || $arrSplit[0] == 'cache_youtube')
-		{
-			// Parameter 1 angegeben?
-			if(isset($arrSplit[1]))
-			{
-				return '<a href="https://www.youtube.com/'.$arrSplit[1].'" target="_blank" title="YouTube"><img src="files/dsb/theme/icons/youtube_32.png"></a>';
+				return date('d.m.Y H:i', $datum);
 			}
 		}
 
 		return false; // Tag nicht dabei
 	}
 
+	public function ladeDatum()
+	{
+		global $objPage;
+		
+		// Wurde ein Artikel aufgerufen? Dann Artikel-ID ermitteln
+		$alias_article = \Contao\Input::get('articles');
+		$alias_article = 'bundles';
+		if($alias_article)
+		{
+			// Ein Artikel wurde ermittelt
+			//$objArticleModel = \Contao\ArticleModel::findByIdOrAliasAndPid($alias_article, $objPage->id);
+			$objArticle = \Contao\ArticleModel::findByIdOrAlias($alias_article);
+			$id_article = 0;
+			if($objArticle)
+			{
+				$id_article = $objArticle->id;
+			}
+		}
+		else
+		{
+			$objArticle = \Contao\ArticleModel::findOneByPid($objPage->id);
+			$id_article = $objArticle->id;
+		}
+		
+		//echo 'Artikel-ID='.$id_article;
+		
+		// Inhaltselemente finden
+		$aktzeit = time();
+		$objContent = \Contao\Database::getInstance()->prepare("SELECT * FROM tl_content WHERE pid = ? AND ptable = ? AND (start = ? OR start < ?) AND (stop = ? OR stop > ?) AND invisible = ?") 
+		                                             ->execute($id_article, 'tl_article', '', $aktzeit, '', $aktzeit, ''); 
+		$artikelzeit = $objArticle->tstamp;
+		while($objContent->next())
+		{
+			if($objContent->tstamp > $artikelzeit) $artikelzeit = $objContent->tstamp;
+		}
+		
+		return $artikelzeit;
+
+	}
 }

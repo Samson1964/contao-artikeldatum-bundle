@@ -11,4 +11,4 @@
  * @copyright Frank Hoppe 2014
  */
  
-$GLOBALS['TL_HOOKS']['replaceInsertTags'][] = array('Schachbulle\ContaoArtikeldatumBundle\Classes\Artikeldatum', 'Tag');
+$GLOBALS['TL_HOOKS']['replaceInsertTags'][] = array('Schachbulle\ContaoArtikeldatumBundle\Classes\Artikeldatum', 'doReplace');

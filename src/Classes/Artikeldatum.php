@@ -29,6 +29,7 @@ class Artikeldatum
 			{
 				// Parameter 2 angegeben?
 				return date($arrSplit[1], $datum);
+				//return date('d.m.Y H:i', $datum);
 			}
 			else
 			{
@@ -42,10 +43,11 @@ class Artikeldatum
 	public function ladeDatum()
 	{
 		global $objPage;
+
+//https://community.contao.org/de/showthread.php?61903-Last-Modified&p=404109&viewfull=1#post404109
 		
 		// Wurde ein Artikel aufgerufen? Dann Artikel-ID ermitteln
 		$alias_article = \Contao\Input::get('articles');
-		$alias_article = 'bundles';
 		if($alias_article)
 		{
 			// Ein Artikel wurde ermittelt
@@ -70,8 +72,11 @@ class Artikeldatum
 		$objContent = \Contao\Database::getInstance()->prepare("SELECT * FROM tl_content WHERE pid = ? AND ptable = ? AND (start = ? OR start < ?) AND (stop = ? OR stop > ?) AND invisible = ?") 
 		                                             ->execute($id_article, 'tl_article', '', $aktzeit, '', $aktzeit, ''); 
 		$artikelzeit = $objArticle->tstamp;
+		//echo 'Artikel '.$objArticle->id.' / Zeit: '.date('d.m.Y H:i', $objArticle->tstamp).'<br>';
+
 		while($objContent->next())
 		{
+			//echo 'Inhaltselement '.$objContent->id.' / Zeit: '.date('d.m.Y H:i', $objContent->tstamp).'<br>';
 			if($objContent->tstamp > $artikelzeit) $artikelzeit = $objContent->tstamp;
 		}
 		

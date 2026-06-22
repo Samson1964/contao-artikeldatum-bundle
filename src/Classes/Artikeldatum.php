@@ -20,24 +20,21 @@ class Artikeldatum
 	{
 		$arrSplit = explode('::', $tag);
 
-		// Inserttag {{article_update::d.m.Y}}
+		// Inserttag {{article_update}} bzw. {{article_update::d.m.Y}}
 		if($arrSplit[0] == 'article_update')
 		{
-			$datum = self::ladeDatum();
-			// Parameter 2 angegeben?
-			if(isset($arrSplit[1]))
+			$datum = $this->ladeDatum();
+
+			// Wurde ein Datumsformat als Parameter angegeben?
+			if(isset($arrSplit[1]) && $arrSplit[1] !== '')
 			{
-				// Parameter 2 angegeben?
-				return date($arrSplit[1], $datum);
-				//return date('d.m.Y H:i', $datum);
+				return date($arrSplit[1], (int) $datum);
 			}
-			else
-			{
-				return date('d.m.Y H:i', $datum);
-			}
+
+			return date('d.m.Y H:i', (int) $datum);
 		}
 
-		return false; // Tag nicht dabei
+		return false; // Tag gehört nicht zu diesem Bundle
 	}
 
 	public function ladeDatum()
@@ -45,41 +42,43 @@ class Artikeldatum
 		global $objPage;
 
 //https://community.contao.org/de/showthread.php?61903-Last-Modified&p=404109&viewfull=1#post404109
-		
-		// Wurde ein Artikel aufgerufen? Dann Artikel-ID ermitteln
+
+		$objArticle = null;
+
+		// Wurde ein Artikel aufgerufen? Dann diesen Artikel verwenden ...
 		$alias_article = \Contao\Input::get('articles');
 		if($alias_article)
 		{
-			// Ein Artikel wurde ermittelt
-			//$objArticleModel = \Contao\ArticleModel::findByIdOrAliasAndPid($alias_article, $objPage->id);
 			$objArticle = \Contao\ArticleModel::findByIdOrAlias($alias_article);
-			$id_article = 0;
-			if($objArticle)
-			{
-				$id_article = $objArticle->id;
-			}
 		}
-		else
+		// ... ansonsten den ersten Artikel der aktuellen Seite
+		elseif($objPage !== null)
 		{
 			$objArticle = \Contao\ArticleModel::findOneByPid($objPage->id);
-			$id_article = $objArticle->id;
 		}
-		
-		//echo 'Artikel-ID='.$id_article;
-		
-		// Inhaltselemente finden
+
+		// Kein Artikel gefunden: auf Seiten- bzw. aktuelle Zeit zurueckfallen (PHP-8-sicher)
+		if($objArticle === null)
+		{
+			return ($objPage !== null) ? (int) $objPage->tstamp : time();
+		}
+
+		$id_article  = (int) $objArticle->id;
+		$artikelzeit = (int) $objArticle->tstamp;
+
+		// Sichtbare Inhaltselemente des Artikels finden und juengsten Aenderungszeitpunkt ermitteln
 		$aktzeit = time();
-		$objContent = \Contao\Database::getInstance()->prepare("SELECT * FROM tl_content WHERE pid = ? AND ptable = ? AND (start = ? OR start < ?) AND (stop = ? OR stop > ?) AND invisible = ?") 
-		                                             ->execute($id_article, 'tl_article', '', $aktzeit, '', $aktzeit, ''); 
-		$artikelzeit = $objArticle->tstamp;
-		//echo 'Artikel '.$objArticle->id.' / Zeit: '.date('d.m.Y H:i', $objArticle->tstamp).'<br>';
+		$objContent = \Contao\Database::getInstance()->prepare("SELECT tstamp FROM tl_content WHERE pid = ? AND ptable = ? AND (start = ? OR start < ?) AND (stop = ? OR stop > ?) AND invisible = ?")
+		                                             ->execute($id_article, 'tl_article', '', $aktzeit, '', $aktzeit, '');
 
 		while($objContent->next())
 		{
-			//echo 'Inhaltselement '.$objContent->id.' / Zeit: '.date('d.m.Y H:i', $objContent->tstamp).'<br>';
-			if($objContent->tstamp > $artikelzeit) $artikelzeit = $objContent->tstamp;
+			if((int) $objContent->tstamp > $artikelzeit)
+			{
+				$artikelzeit = (int) $objContent->tstamp;
+			}
 		}
-		
+
 		return $artikelzeit;
 
 	}

@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2005-2014 Leo Feyer
  *
- * @package   fh-counter
+ * @package   ContaoArtikeldatumBundle
  * @author    Frank Hoppe
  * @license   GNU/LGPL
  * @copyright Frank Hoppe 2014

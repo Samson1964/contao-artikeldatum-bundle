@@ -1,14 +1,14 @@
-# Inserttag für Contao um das aktuelle Artikeldatum anzuzeigen
+# Artikeldatum Changelog
 
 ## Version 1.1.0 (2026-07-29) - mit Claude Code
 
-* Neu: Das Bundle läuft jetzt unter **Contao 4.13 LTS und Contao 5** (getestet
+* Add: Das Bundle läuft jetzt unter **Contao 4.13 LTS und Contao 5** (getestet
   gegen 4.13.58 und 5.7 mit PHP 8.3). Bisher war nur Contao 5 möglich.
-* Neu: Ab Contao 5.2 wird das Inserttag über das Attribut `AsInsertTag`
+* Add: Ab Contao 5.2 wird das Inserttag über das Attribut `AsInsertTag`
   registriert. Damit entfällt unter Contao 5 die Deprecation-Meldung
   „Using the replaceInsertTags hook is deprecated". Der Hook wird nur noch dort
   registriert, wo das Attribut fehlt (Contao 4.13 bis 5.1).
-* Neu: Ab Contao 5 setzt das Inserttag die Cache-Tags des Artikels und seiner
+* Add: Ab Contao 5 setzt das Inserttag die Cache-Tags des Artikels und seiner
   Inhaltselemente. Der Seitencache wird dadurch automatisch verworfen, wenn sich
   etwas ändert – das Flag `uncached` wird dort nicht mehr benötigt.
 * Fix: Die Inhaltselemente werden über `ContentModel::findPublishedByPidAndTable()`
@@ -22,9 +22,9 @@
   Array-Parameter (`?articles[]=x`) führte unter PHP 8 zu einem TypeError.
 * Fix: Der erste Artikel einer Seite wird jetzt nach `sorting` ermittelt und ist
   damit reproduzierbar; bisher entschied die Datenbank über die Reihenfolge.
-* Neu: Ausgabe über `Contao\Date::parse()` statt `date()` – Monats- und
+* Add: Ausgabe über `Contao\Date::parse()` statt `date()` – Monats- und
   Wochentagsnamen erscheinen jetzt in der Sprache der Seite.
-* Neu: Unit-Tests unter `tests/` samt `phpunit.xml.dist`.
+* Add: Unit-Tests unter `tests/` samt `phpunit.xml.dist`.
 * Aufgeräumt: Klasse `Classes\Artikeldatum` nach `InsertTag\ArtikeldatumInsertTag`
   verschoben, `declare(strict_types=1)` in allen Dateien, wirkungslose
   `_instanceof`-Definition aus der Service-Konfiguration entfernt

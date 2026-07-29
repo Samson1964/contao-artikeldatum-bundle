@@ -1,0 +1,9 @@
+services:
+    _defaults:
+        autoconfigure: true
+
+    # Ab Contao 5.2 registriert das Attribut AsInsertTag den Dienst als Inserttag.
+    # In älteren Versionen bleibt die Definition ungenutzt; dort greift der Hook
+    # aus der config.php.
+    schachbulle.artikeldatum.insert_tag:
+        class: Schachbulle\ContaoArtikeldatumBundle\InsertTag\ArtikeldatumInsertTag

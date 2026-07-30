@@ -1,5 +1,9 @@
 # Artikeldatum Changelog
 
+## Version 1.1.1 (2026-07-30)
+
+* Change: Beschreibung, Keywords und Homepage in der composer.json ergänzt, damit Packagist das Paket verständlich darstellt und über die Suche auffindbar macht
+
 ## Version 1.1.0 (2026-07-29) - mit Claude Code
 
 * Add: Das Bundle läuft jetzt unter **Contao 4.13 LTS und Contao 5** (getestet
